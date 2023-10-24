@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
 
 token = os.getenv('AttendBot_TOKEN')
-channel_id = os.getenv('CHANNEL_ID')
+channel_id = os.getenv('CHANNEL_ID') # test channel
 
 connection = connection.Connection()
 conn, cur = connection.getConnection()
@@ -28,6 +28,10 @@ async def on_ready():
 
     if channel:
         command = bot.get_command("도움말")
+        if command:
+            await command.callback(channel)
+    if channel:
+        command = bot.get_command("루틴")
         if command:
             await command.callback(channel)
 
@@ -177,8 +181,8 @@ async def helps(ctx):
 
 @bot.command(aliases=['루틴', 'rt'])
 async def routine(ctx):
-    embed = discord.Embed(title="출석체크 하세요!!!!!!",
-                          description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸..안 해?\n\n"
+    embed = discord.Embed(title="**출석체크 하세요**!!!!!!",
+                          description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸.. 안 해?\n\n"
                           , color=0xffc0cb)
     await ctx.send(embed=embed)
 
