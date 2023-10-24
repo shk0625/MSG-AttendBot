@@ -62,7 +62,7 @@ async def follow(ctx, user: discord.Member):
     rs = cur.fetchone()
 
     if rs is not None:
-        await ctx.send(f"독촉 하기엔 {user.display_name}님은 이미 출석을 해버렸습니다. {user.display_name}님은 좀 느린듯?")
+        await ctx.send(f"독촉 하기엔 {user.display_name}님은 이미 출석을 해버렸습니다. {user.display_name}님  좀 느린듯?")
     else:
         await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
 
@@ -177,7 +177,7 @@ async def helps(ctx):
 
 @bot.command(aliases=['루틴', 'rt'])
 async def routine(ctx):
-    embed = discord.Embed(title="출석체크라도 하세요!!!!!!",
+    embed = discord.Embed(title="출석체크 하세요!!!!!!",
                           description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸..안 해?\n\n"
                           , color=0xffc0cb)
     await ctx.send(embed=embed)
