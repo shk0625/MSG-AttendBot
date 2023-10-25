@@ -166,13 +166,20 @@ async def ranking(ctx, member: discord.Member = None):
                             inline=False)
 
     await ctx.send(embed=embed)
-
     today = datetime.now().strftime('%Y-%m-%d')
     sql = f"SELECT * FROM attend WHERE did=%s AND date=%s"
     cur.execute(sql, (str(member.id), today))
     rs = cur.fetchone()
 
-    if rs is None:
+    if rs is not None:
+        index = next((i for i, v in enumerate(result) if v['did'] == str(member.id)), None)
+        if index is not None:
+            if index < 5:
+                await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요!")
+            else:
+                await ctx.send(
+                    f"**{member.display_name}**님은 순위표에 보이지 않아요! 어디있죠? (찾는 중...)\n 엇 **{member.display_name}**님의 순위는 **{index + 1}**등입니다. 좀 더 분발하세요!!")
+    else:
         await ctx.send(f"**{member.display_name}**님, 출석체크부터 할까요?")
 
 
