@@ -167,8 +167,9 @@ async def ranking(ctx, member: discord.Member = None):
 
     await ctx.send(embed=embed)
 
-    sql = f"SELECT * FROM attend WHERE did=%s"
-    cur.execute(sql, (str(member.id),))
+    today = datetime.now().strftime('%Y-%m-%d')
+    sql = f"SELECT * FROM attend WHERE did=%s AND date=%s"
+    cur.execute(sql, (str(member.id), today))
     rs = cur.fetchone()
 
     if rs is None:
