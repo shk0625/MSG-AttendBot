@@ -167,6 +167,13 @@ async def ranking(ctx, member: discord.Member = None):
 
     await ctx.send(embed=embed)
 
+    sql = f"SELECT * FROM attend WHERE did=%s"
+    cur.execute(sql, (str(member.id),))
+    rs = cur.fetchone()
+
+    if rs is None:
+        await ctx.send(f"**{member.display_name}**님, 출석체크부터 할까요?")
+
 
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
