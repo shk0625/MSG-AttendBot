@@ -108,12 +108,13 @@ async def attend(ctx, member: discord.Member = None):
         sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
         cur.execute(sql, (str(ctx.author.id), 1, today))
         conn.commit()
-        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?', )
+        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
+
     else:
         sql = 'UPDATE attend SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(ctx.author.id)))
         conn.commit()
-        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
+        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
 
 
 @bot.command(aliases=['포인트', 'pp'])
