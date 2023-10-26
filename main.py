@@ -8,17 +8,16 @@ import os
 import discord
 from discord.ext import commands
 
-
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
 
 token = os.getenv('AttendBot_TOKEN')
-channel_id = os.getenv('CHANNEL_ID') # test channel
+channel_id = os.getenv('CHANNEL_ID')  # test channel
 
 connection = connection.Connection()
 conn, cur = connection.getConnection()
 
-server_database_connections = {} # 서버 ID 별로 데이터베이스 연결을 관리하기 위한 딕셔너리
+server_database_connections = {}  # 서버 ID 별로 데이터베이스 연결을 관리하기 위한 딕셔너리
 
 
 @bot.event
@@ -155,7 +154,7 @@ async def ranking(ctx, member: discord.Member = None):
     guild_members = [member.id for member in ctx.guild.members]
 
     sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5"
-    cur.execute(sql, tuple(guild_members))
+    cur.execute(sql, guild_members)  # Remove the tuple conversion here
     result = cur.fetchall()
 
     embed = discord.Embed(title="🏆 순위표 🏆", color=discord.Color.blue())
@@ -166,19 +165,25 @@ async def ranking(ctx, member: discord.Member = None):
                             inline=False)
 
     await ctx.send(embed=embed)
+
     today = datetime.now().strftime('%Y-%m-%d')
-    sql = f"SELECT * FROM attend WHERE did=%s AND date=%s"
+    sql = "SELECT * FROM attend WHERE did=%s AND date=%s"
     cur.execute(sql, (str(member.id), today))
     rs = cur.fetchone()
+
+    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point"
+    cur.execute(sql, guild_members)
+    rs2 = cur.fetchall()
 
     if rs is None:
         await ctx.send(f"**{member.display_name}**님, 출석체크부터 할까요?")
     else:
         index = next((i for i, v in enumerate(result) if v['did'] == str(member.id)), None)
         if index is not None:
+            print(index)
             if index < 5:
-                await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등 이에요!")
-            else:
+                await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등이에요!")
+            elif any(row['did'] == str(member.id) for row in rs2[5:]):
                 await ctx.send(
                     f"**{member.display_name}**님은 순위표에 보이지 않아요! 어디있죠? (찾는 중...)\n 엇 **{member.display_name}**님의 순위는 **{index + 1}**등입니다. 좀 더 분발하세요!!")
 
@@ -188,7 +193,7 @@ async def helps(ctx):
     embed = discord.Embed(title="도움말",
                           description="**/출석**, **/aa**\n`/출석`을 해서 스택을 쌓습니다. `/출석 @상대` 기능으로 출석여부를 파악할 수 있습니다.\n\n "
                                       "**/알람**, **/al**\n`/알람 3`, `/al 3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n"
-                                      "**/독촉**, **/dc**\n`/독촉 @상대`형식으로 사용합니다. 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"                                      
+                                      "**/독촉**, **/dc**\n`/독촉 @상대`형식으로 사용합니다. 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                                       "**/순위표**\n현재 출석률을 확인합니다.\n\n"
                           , color=0xffc0cb)
 
