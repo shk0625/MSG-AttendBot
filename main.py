@@ -188,6 +188,20 @@ async def ranking(ctx, member: discord.Member = None):
                     f"**{member.display_name}**님은 순위표에 보이지 않아요! 어디있죠? (찾는 중...)\n 엇 **{member.display_name}**님의 순위는 **{index + 1}**등입니다. 좀 더 분발하세요!!")
 
 
+@bot.command(aliases=['데일리', 'da'])
+async def daily(ctx, *, content: str):
+    conn, cur = connection.getConnection()
+
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
+
+    cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
+
+    conn.commit()
+    await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 기록되었습니다!")
+
+
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
