@@ -67,7 +67,7 @@ async def follow(ctx, user: discord.Member):
     if rs is not None:
         await ctx.send(f"독촉 하기엔 {user.display_name}님은 이미 출석을 해버렸습니다. {ctx.author.display_name}님  좀 느린듯?")
     else:
-        await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
+        await user.send(f"> {user.mention}님, 출석이 어려운 게 아닌데.. 아직도..")
 
 
 @bot.command(aliases=['알람', 'al'])
