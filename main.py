@@ -115,6 +115,16 @@ async def attend(ctx, member: discord.Member = None):
         conn.commit()
         await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
 
+    if member is not None:  # 테스트코드
+        rs_member = cur.execute("SELECT * FROM attend WHERE did=%s", (str(member.id),))
+        if rs_member:
+            await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요!')
+        else:
+            sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
+            cur.execute(sql, (str(member.id), 1, today))
+            conn.commit()
+            await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요!')
+
 
 @bot.command(aliases=['포인트', 'pp'])
 async def point(ctx, member: discord.Member = None):
