@@ -194,16 +194,15 @@ async def daily(ctx, *, content: str):
 
     today = datetime.now().strftime('%Y-%m-%d')
 
-    cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
-
     cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
-
     conn.commit()
 
-    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리가 기록되었습니다.",
-                          color=discord.Color.purple())
-    embed.add_field(name="내용", value=content, inline=False)
-    embed.add_field(name="작성일", value=today, inline=False)
+    cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
+    all_entries = cur.fetchall()
+
+    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록", color=discord.Color.purple())
+    for entry in all_entries:
+        embed.add_field(name=f"작성일: {entry['day']}", value=f"내용: {entry['todays']}", inline=False)
 
     await ctx.channel.send(embed=embed)
 
@@ -241,6 +240,8 @@ async def helps(ctx):
                                       "**/알람**, **/al**\n`/알람 3`, `/al 3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n"
                                       "**/독촉**, **/dc**\n`/독촉 @상대`형식으로 사용합니다. 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                                       "**/순위표**\n현재 출석률을 확인합니다.\n\n"
+                                      "**/데일리**, **/기록**, **/da**\n데일리를 기록할 수 있습니다. 기록후 바로 확인 가능합니다.\n\n"
+                                      "**/삭제**, **/데일리삭제**, **/dd**\n 데일리를 *전체 삭제*합니다. 경고창이 표시됩니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
