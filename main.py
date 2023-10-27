@@ -199,8 +199,14 @@ async def daily(ctx, *, content: str):
     cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
 
     conn.commit()
-    await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 기록되었습니다!")
 
+    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리가 기록되었습니다.",
+                          color=discord.Color.purple())
+    embed.add_field(name="내용", value=content, inline=False)
+    embed.add_field(name="작성일", value=today, inline=False)
+
+    await ctx.channel.send(embed=embed)
+    
 
 @bot.command(aliases=['삭제', '데일리삭제', 'dd'])
 async def daily_delete(ctx):
