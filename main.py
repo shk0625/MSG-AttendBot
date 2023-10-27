@@ -37,8 +37,12 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+
     if bot.user.mentioned_in(message):
-        await message.channel.send(f'> 등장! 💫💫💫💫💫💫')
+        for mention in message.mentions:
+            if mention.name == "봇" or mention.name == "AttendBot":
+                await message.channel.send(f'> 등장! 💫💫💫💫💫💫')
+                break
 
     await bot.process_commands(message)
 
