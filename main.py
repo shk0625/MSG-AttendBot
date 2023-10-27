@@ -206,15 +206,32 @@ async def daily(ctx, *, content: str):
     embed.add_field(name="작성일", value=today, inline=False)
 
     await ctx.channel.send(embed=embed)
-    
+
 
 @bot.command(aliases=['삭제', '데일리삭제', 'dd'])
 async def daily_delete(ctx):
     conn, cur = connection.getConnection()
 
-    cur.execute("DELETE FROM daily WHERE did = %s", (str(ctx.author.id),))
-    conn.commit()
-    await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 삭제되었습니다!")
+    cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
+    existing_daily = cur.fetchone()
+
+    if not existing_daily:
+        await ctx.channel.send(f"> {ctx.author.display_name}님은 아직 데일리를 작성하지 않았습니다!")
+        return
+
+    confirmation = await ctx.channel.send(f"> {ctx.author.display_name}님, 데일리를 삭제하시겠습니까? 삭제하려면 'Y'라고 입력해주세요.")
+
+    def check(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel and msg.content == 'Y'
+
+    try:
+        msg = await bot.wait_for('message', check=check, timeout=5)
+    except asyncio.TimeoutError:
+        await ctx.channel.send(f"> {ctx.author.display_name}님, 시간이 초과되었습니다. 데일리 삭제를 취소합니다.")
+    else:
+        cur.execute("DELETE FROM daily WHERE did = %s", (str(ctx.author.id),))
+        conn.commit()
+        await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 삭제되었습니다!")
 
 
 @bot.command(aliases=['도움말', 'hp'])
