@@ -188,7 +188,7 @@ async def ranking(ctx, member: discord.Member = None):
                     f"**{member.display_name}**님은 순위표에 보이지 않아요! 어디있죠? (찾는 중...)\n 엇 **{member.display_name}**님의 순위는 **{index + 1}**등입니다. 좀 더 분발하세요!!")
 
 
-@bot.command(aliases=['데일리', '기록', 'dd', 'da'])
+@bot.command(aliases=['데일리', '기록', 'da'])
 async def daily(ctx, *, content: str):
     conn, cur = connection.getConnection()
 
@@ -200,6 +200,15 @@ async def daily(ctx, *, content: str):
 
     conn.commit()
     await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 기록되었습니다!")
+
+
+@bot.command(aliases=['삭제', '데일리삭제', 'dd'])
+async def daily_delete(ctx):
+    conn, cur = connection.getConnection()
+
+    cur.execute("DELETE FROM daily WHERE did = %s", (str(ctx.author.id),))
+    conn.commit()
+    await ctx.channel.send(f"> {ctx.author.display_name}님의 데일리가 삭제되었습니다!")
 
 
 @bot.command(aliases=['도움말', 'hp'])
