@@ -104,6 +104,10 @@ async def attend(ctx, member: discord.Member = None):
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
+    sql = "SELECT * FROM daily WHERE did=%s AND day=%s"
+    cur.execute(sql, (str(ctx.author.id), today))
+    daily_rs = cur.fetchone()
+
     if rs is not None and str(rs.get('date')) == today:
         await ctx.channel.send(f'> {ctx.author.display_name}님은 이미 출석체크를 했어요!')
         return
@@ -119,6 +123,9 @@ async def attend(ctx, member: discord.Member = None):
         cur.execute(sql, (rs['count'] + 1, today, str(ctx.author.id)))
         conn.commit()
         await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
+
+    if daily_rs is None:
+        await ctx.channel.send(f'> {ctx.author.display_name}님 데일리도요..')
 
 
 @bot.command(aliases=['포인트', 'pp'])
