@@ -184,10 +184,10 @@ async def ranking(ctx, member: discord.Member = None):
     else:
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
         if index is not None:
-            if index < 5:
+            if index < 1:
+                await ctx.send(f"🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉\n# {member.mention}님은 {index + 1}등\n🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉")
+            if 0 < index < 5:
                 await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등이에요.")
-            elif index < 1:
-                await ctx.send(f"**{member.mention}**님은 {index + 1}등이에요!!!🎉🎉🎉🎉")
             elif any(row['did'] == str(member.id) for row in rs2[5:]):
                 await ctx.send(
                     f"엇 **{member.mention}**님의 순위는 **{index + 1}**등입니다. 허접이네요ㅋ")
