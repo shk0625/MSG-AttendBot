@@ -44,6 +44,8 @@ async def on_message(message):
                 await message.channel.send(f'> 등장! 💫💫💫💫💫💫')
                 break
 
+    await bot.process_commands(message)
+
 
 @bot.command(name="안녕")
 async def testHello(ctx):
