@@ -184,12 +184,13 @@ async def ranking(ctx, member: discord.Member = None):
     else:
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
         if index is not None:
-            print(index)
             if index < 5:
-                await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등이에요!")
+                await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등이에요.")
+            elif index < 1:
+                await ctx.send(f"**{member.mention}**님은 {index + 1}등이에요!!!🎉🎉🎉🎉")
             elif any(row['did'] == str(member.id) for row in rs2[5:]):
                 await ctx.send(
-                    f"**{member.display_name}**님은 순위표에 보이지 않아요! 어디있죠? (찾는 중...)\n엇 **{member.display_name}**님의 순위는 **{index + 1}**등입니다. 좀 더 분발하세요!!")
+                    f"엇 **{member.mention}**님의 순위는 **{index + 1}**등입니다. 허접이네요ㅋ")
 
 
 @bot.command(aliases=['데일리', '기록', 'da'])
