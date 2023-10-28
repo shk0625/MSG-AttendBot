@@ -71,7 +71,7 @@ async def follow(ctx, user: discord.Member):
     if rs is not None:
         await ctx.send(f"독촉 하기엔 {user.display_name}님은 이미 출석을 해버렸습니다. {ctx.author.display_name}님  좀 느린듯?")
     else:
-        await user.send(f"> {user.mention}님, 출석이 어려운 게 아닌데.. 아직도..")
+        await user.send(f"> {user.mention}님, 출석과 데일리가 어려운 게 아닌데.. 아직도..")
 
 
 @bot.command(aliases=['알람', 'al'])
@@ -84,10 +84,11 @@ async def alarm(ctx, duration: int = None, member: discord.Member = None):
         await ctx.send("> 3, 5, 7분 뒤 재알람만 가능합니다.`/알람 3` 형식으로 입력해주세요.")
         return
 
-    await ctx.send(f"> {ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**을 성실하게 해주세요 오늘도 파이팅 "
+    await ctx.send(f"> {ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
                    f"٩( ᐛ )و")
     await asyncio.sleep(duration * 60)
-    await ctx.author.send(f"> {ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
+    await ctx.author.send(f"> {ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/작성` 명령어를 사용하세요.\n"
+                          f"도움이 필요하다면 `/hp`명령어를 사용하세요.")
 
 
 @bot.command(aliases=['출석', 'aa'])
