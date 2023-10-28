@@ -109,23 +109,31 @@ async def attend(ctx, member: discord.Member = None):
     daily_rs = cur.fetchone()
 
     if rs is not None and str(rs.get('date')) == today:
-        await ctx.channel.send(f'> {ctx.author.display_name}님은 이미 출석체크를 했어요!')
+        if daily_rs is None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님은 이미 출석체크를 했어요. 데일리를 작성해주세요!')
+        elif daily_rs is not None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님은 이미 출석체크를 했어요.')
         return
 
     if rs is None:
         sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
         cur.execute(sql, (str(ctx.author.id), 1, today))
         conn.commit()
-        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
+
+        if daily_rs is not None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
+        elif daily_rs is None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님 출석을 완료했으니 데일리를 작성해주세요!')
 
     else:
         sql = 'UPDATE attend SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(ctx.author.id)))
         conn.commit()
-        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
 
-    if daily_rs is None:
-        await ctx.channel.send(f'> {ctx.author.display_name}님 데일리도요..')
+        if daily_rs is not None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요!')
+        elif daily_rs is None:
+            await ctx.channel.send(f'> {ctx.author.display_name}님 출석을 완료했으니 데일리를 작성해주세요!')
 
 
 @bot.command(aliases=['포인트', 'pp'])
