@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+
 from pytz import timezone  # loop
 from config import timezone # timezone
 
@@ -171,22 +172,6 @@ async def point(ctx, member: discord.Member = None):
         cur.execute(update_sql, (total_point, str(member.id)))
         conn.commit()
 
-    sql = f"SELECT * FROM daily WHERE day==toay"
-    cur.execute(sql, (str(member.id),))
-    result = cur.fetchone()
-
-    if result:
-        daily_point = result['point']
-        print("daily:", daily_point)
-        total_point = daily_point + 10
-
-        update_sql = "UPDATE attend SET point = %s WHERE did = %s"
-        cur.execute(update_sql, (total_point, str(ctx.author.id)))
-        conn.commit()
-        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
-    else:
-        await ctx.channel.send("포인트를 업데이트할 사용자를 찾지 못했습니다.")
-
 
 @bot.command(aliases=['순위', 'rk'])
 async def ranking(ctx, member: discord.Member = None):
@@ -257,6 +242,35 @@ async def daily(ctx, *, content: str):
         embed.add_field(name=f"작성일: {entry['day']}", value=f"내용: {entry['todays']}", inline=False)
 
     await ctx.channel.send(embed=embed)
+
+    today = datetime.now().strftime('%Y-%m-%d')
+    cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
+    conn.commit()
+
+    cur.execute("SELECT * FROM daily WHERE did = %s AND day = %s", (str(ctx.author.id), today))
+    result = cur.fetchone()
+
+    if result and result['point'] is None:
+        daily_point = result['point']
+        total_point = daily_point + 10
+
+        insert_sql = "INSERT INTO daily SET point = %s WHERE did = %s AND day = %s"
+        cur.execute(insert_sql, (total_point, str(ctx.author.id), today))
+        conn.commit()
+        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
+    else:
+        await ctx.channel.send("오늘 데일리나 쓰세요~!!")
+
+    if result and result['point'] is not None:
+        daily_point = result['point']
+        total_point = daily_point + 10
+
+        update_sql = "UPDATE daily SET point = %s WHERE did = %s AND day = %s"
+        cur.execute(update_sql, (total_point, str(ctx.author.id), today))
+        conn.commit()
+        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
+    else:
+        await ctx.channel.send("오늘 데일리나 쓰세요~!!")
 
 
 @bot.command(aliases=['삭제', '데일리삭제', 'dd'])
