@@ -1,5 +1,7 @@
 import asyncio
 from datetime import datetime
+from pytz import timezone  # loop
+from config import timezone # timezone
 
 import connection
 from dotenv import load_dotenv
@@ -7,17 +9,31 @@ import os
 
 import discord
 from discord.ext import commands
+from discord.ext import tasks  # loop
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
 
 token = os.getenv('AttendBot_TOKEN')
-channel_id = os.getenv('CHANNEL_ID')  # test channel
+channel_id = os.getenv('Test_Channel')  # test channel
 
 connection = connection.Connection()
 conn, cur = connection.getConnection()
 
 server_database_connections = {}  # 서버 ID 별로 데이터베이스 연결을 관리하기 위한 딕셔너리
+
+
+@tasks.loop(hours=24)
+async def routine():
+    tz = timezone(timezone)
+    now = datetime.now(tz)
+
+    if now.hour == 18 and now.minute == 40:
+        channel = bot.get_channel(int(channel_id))
+        embed = discord.Embed(title="**출석체크 하세요**!!!!!!",
+                              description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸.. 안 해?\n\n"
+                              , color=0xffc0cb)
+        await channel.send(embed=embed)
 
 
 @bot.event
@@ -29,15 +45,10 @@ async def on_ready():
         command = bot.get_command("도움말")
         if command:
             await command.callback(channel)
-    if channel:
-        command = bot.get_command("루틴")
-        if command:
-            await command.callback(channel)
 
 
 @bot.event
 async def on_message(message):
-
     if bot.user.mentioned_in(message):
         for mention in message.mentions:
             if mention.name == "봇" or mention.name == "AttendBot":
@@ -153,6 +164,7 @@ async def point(ctx, member: discord.Member = None):
         base_point = count * 10  # 출석 횟수에 따라 10점씩 적립
         bonus_point = count // 5 * 20  # 5의 배수일 때 20점씩 추가 적립
         total_point = base_point + bonus_point
+        print("point:", total_point)
         await ctx.send(f"> **{member.display_name}**님의 현재 포인트는 {total_point}점입니다.")
 
         update_sql = "UPDATE attend SET point = %s WHERE did = %s"
@@ -201,7 +213,8 @@ async def ranking(ctx, member: discord.Member = None):
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
         if index is not None:
             if index < 1:
-                await ctx.send(f"🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏\n# {member.mention}님은 {index + 1}등\n🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏")
+                await ctx.send(
+                    f"🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏\n# {member.mention}님은 {index + 1}등\n🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏")
             if 0 < index < 5:
                 await ctx.send(f"**{member.display_name}**님은 순위표 내에 있어요! {index + 1}등이에요.")
             elif any(row['did'] == str(member.id) for row in rs2[5:]):
@@ -221,7 +234,8 @@ async def daily(ctx, *, content: str):
     cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
     all_entries = cur.fetchall()
 
-    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록", color=discord.Color.purple())
+    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록",
+                          color=discord.Color.purple())
     for entry in all_entries:
         embed.add_field(name=f"작성일: {entry['day']}", value=f"내용: {entry['todays']}", inline=False)
 
@@ -265,14 +279,6 @@ async def helps(ctx):
                                       "**/삭제**, **/데일리삭제**, **/dd**\n 데일리를 *전체 삭제*합니다. 경고창이 표시됩니다.\n\n"
                           , color=0xffc0cb)
 
-    await ctx.send(embed=embed)
-
-
-@bot.command(aliases=['루틴', 'rt'])
-async def routine(ctx):
-    embed = discord.Embed(title="**출석체크 하세요**!!!!!!",
-                          description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸.. 안 해?\n\n"
-                          , color=0xffc0cb)
     await ctx.send(embed=embed)
 
 
