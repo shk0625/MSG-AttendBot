@@ -80,7 +80,7 @@ async def follow(ctx, user: discord.Member):
     rs = cur.fetchone()
 
     if rs is not None:
-        await ctx.send(f"독촉 하기엔 {user.display_name}님은 이미 출석을 해버렸습니다. {ctx.author.display_name}님  좀 느린듯?")
+        await ctx.send(f"{ctx.author.display_name}님 좀 느린듯?, {user.display_name}님은 이미 출석함ㅋ ")
     else:
         await user.send(f"> {user.mention}님, 출석과 데일리가 어려운 게 아닌데.. 아직도..")
 
@@ -224,6 +224,7 @@ async def ranking(ctx, member: discord.Member = None):
     rs2 = cur.fetchall()
 
     if rs is None:
+        print("랭킹 출석체크 여부", rs)
         await ctx.send(f"**{member.display_name}**님, 출석체크부터 할까요?")
     else:
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
