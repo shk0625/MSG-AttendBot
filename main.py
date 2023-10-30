@@ -171,6 +171,22 @@ async def point(ctx, member: discord.Member = None):
         cur.execute(update_sql, (total_point, str(member.id)))
         conn.commit()
 
+    sql = f"SELECT * FROM daily WHERE day==toay"
+    cur.execute(sql, (str(member.id),))
+    result = cur.fetchone()
+
+    if result:
+        daily_point = result['point']
+        print("daily:", daily_point)
+        total_point = daily_point + 10
+
+        update_sql = "UPDATE attend SET point = %s WHERE did = %s"
+        cur.execute(update_sql, (total_point, str(ctx.author.id)))
+        conn.commit()
+        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
+    else:
+        await ctx.channel.send("포인트를 업데이트할 사용자를 찾지 못했습니다.")
+
 
 @bot.command(aliases=['순위', 'rk'])
 async def ranking(ctx, member: discord.Member = None):
