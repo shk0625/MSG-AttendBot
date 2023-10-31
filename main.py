@@ -170,19 +170,19 @@ async def point(ctx, member: discord.Member = None):
         conn.commit()
 
     today = datetime.now().strftime('%Y-%m-%d')
-    sql_attend = f"SELECT * FROM attend WHERE did = %s AND date = %s"
+    sql_attend = "SELECT * FROM daily WHERE did = %s AND day = %s"
     cur.execute(sql_attend, (str(member.id), today))
     rs_attend = cur.fetchone()
 
     if rs_attend is not None:
-        current_point = rs_attend['point'] if rs_attend['point'] else 0
+        current_point = rs_attend['point'] if rs_attend['point'] is not None else 0
         new_point = current_point + 10
 
-        update_sql = "UPDATE attend SET point = %s WHERE did = %s AND date = %s"
+        update_sql = "UPDATE daily SET point = %s WHERE did = %s AND day = %s"
         cur.execute(update_sql, (new_point, str(member.id), today))
         conn.commit()
         print("daily point", new_point)
-        await ctx.channel.send(f"{member.display_name}님의 {new_point}점 데일리 포인트가 입니다.")
+        await ctx.channel.send(f"{member.display_name}님의 현재 데일리 포인트는 {new_point}점 입니다.")
     else:
         await ctx.channel.send("오늘 데일리 작성을 하지 않았습니다.")
 
