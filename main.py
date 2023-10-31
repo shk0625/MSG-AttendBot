@@ -243,35 +243,6 @@ async def daily(ctx, *, content: str):
 
     await ctx.channel.send(embed=embed)
 
-    today = datetime.now().strftime('%Y-%m-%d')
-    cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
-    conn.commit()
-
-    cur.execute("SELECT * FROM daily WHERE did = %s AND day = %s", (str(ctx.author.id), today))
-    result = cur.fetchone()
-
-    if result and result['point'] is None:
-        daily_point = result['point']
-        total_point = daily_point + 10
-
-        insert_sql = "INSERT INTO daily SET point = %s WHERE did = %s AND day = %s"
-        cur.execute(insert_sql, (total_point, str(ctx.author.id), today))
-        conn.commit()
-        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
-    else:
-        await ctx.channel.send("오늘 데일리나 쓰세요~!!")
-
-    if result and result['point'] is not None:
-        daily_point = result['point']
-        total_point = daily_point + 10
-
-        update_sql = "UPDATE daily SET point = %s WHERE did = %s AND day = %s"
-        cur.execute(update_sql, (total_point, str(ctx.author.id), today))
-        conn.commit()
-        await ctx.channel.send(f"포인트 10점이 추가되었습니다.\n현재 포인트: {total_point}점")
-    else:
-        await ctx.channel.send("오늘 데일리나 쓰세요~!!")
-
 
 @bot.command(aliases=['삭제', '데일리삭제', 'dd'])
 async def daily_delete(ctx):
@@ -308,6 +279,7 @@ async def helps(ctx):
                                       "**/순위표**\n현재 출석률을 확인합니다.\n\n"
                                       "**/데일리**, **/기록**, **/da**\n데일리를 기록할 수 있습니다. 기록후 바로 확인 가능합니다.\n\n"
                                       "**/삭제**, **/데일리삭제**, **/dd**\n 데일리를 *전체 삭제*합니다. 경고창이 표시됩니다.\n\n"
+                                      "**/포인트**, **/pp**\n 현재 포인트가 표시됩니다. `/포인트 @상대` 상대포인트가 반환됩니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
