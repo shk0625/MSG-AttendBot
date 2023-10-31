@@ -163,10 +163,28 @@ async def point(ctx, member: discord.Member = None):
         base_point = count * 10  # 출석 횟수에 따라 10점씩 적립
         bonus_point = count // 5 * 20  # 5의 배수일 때 20점씩 추가 적립
         total_point = base_point + bonus_point
-        await ctx.send(f"> **{member.display_name}**님의 현재 포인트는 {total_point}점입니다.")
+        print("attend point", total_point)
+        await ctx.send(f"> **{member.display_name}**님의 현재 출석 포인트는 {total_point}점입니다.")
         update_sql = "UPDATE attend SET point = %s WHERE did = %s"
         cur.execute(update_sql, (total_point, str(member.id)))
         conn.commit()
+
+    today = datetime.now().strftime('%Y-%m-%d')
+    sql_attend = f"SELECT * FROM attend WHERE did = %s AND date = %s"
+    cur.execute(sql_attend, (str(member.id), today))
+    rs_attend = cur.fetchone()
+
+    if rs_attend is not None:
+        current_point = rs_attend['point'] if rs_attend['point'] else 0
+        new_point = current_point + 10
+
+        update_sql = "UPDATE attend SET point = %s WHERE did = %s AND date = %s"
+        cur.execute(update_sql, (new_point, str(member.id), today))
+        conn.commit()
+        print("daily point", new_point)
+        await ctx.channel.send(f"{member.display_name}님의 {new_point}점 데일리 포인트가 입니다.")
+    else:
+        await ctx.channel.send("오늘 데일리 작성을 하지 않았습니다.")
 
 
 @bot.command(aliases=['순위', 'rk'])
@@ -174,11 +192,12 @@ async def ranking(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
 
+    conn, cur = connection.getConnection()
+
     guild_id = ctx.guild.id
     if guild_id not in server_database_connections:
         # 새로운 서버의 경우 데이터베이스 연결 설정
         server_database_connections[guild_id] = connection.getConnection()
-    conn, cur = connection.getConnection()
 
     guild_members = [member.id for member in ctx.guild.members]
 
