@@ -152,12 +152,10 @@ async def attend(ctx, member: discord.Member = None):
 async def point(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
-
     conn, cur = connection.getConnection()
     sql = f"SELECT * FROM attend WHERE did=%s"
     cur.execute(sql, (str(member.id),))
     rs = cur.fetchone()
-
     if rs is None:
         await ctx.send(f"> **{member.display_name}**님, 출석 기록이 없습니다.")
     else:
@@ -165,9 +163,7 @@ async def point(ctx, member: discord.Member = None):
         base_point = count * 10  # 출석 횟수에 따라 10점씩 적립
         bonus_point = count // 5 * 20  # 5의 배수일 때 20점씩 추가 적립
         total_point = base_point + bonus_point
-        print("point:", total_point)
         await ctx.send(f"> **{member.display_name}**님의 현재 포인트는 {total_point}점입니다.")
-
         update_sql = "UPDATE attend SET point = %s WHERE did = %s"
         cur.execute(update_sql, (total_point, str(member.id)))
         conn.commit()
