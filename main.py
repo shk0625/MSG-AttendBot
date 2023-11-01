@@ -182,7 +182,7 @@ async def point(ctx, member: discord.Member = None):
         cur.execute(update_sql, (new_point, str(member.id), today))
         conn.commit()
         print("daily point", new_point)
-        await ctx.channel.send(f"{member.display_name}님의 현재 데일리 포인트는 {new_point}점 입니다.")
+        await ctx.channel.send(f">{member.display_name}님의 현재 데일리 포인트는 {new_point}점 입니다.")
     else:
         await ctx.channel.send("오늘 데일리 작성을 하지 않았습니다.")
 
@@ -229,6 +229,8 @@ async def ranking(ctx, member: discord.Member = None):
     else:
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
         if index is not None:
+            print(guild_members)
+            print(guild_id)
             if index < 1:
                 await ctx.send(
                     f"🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏\n# {member.mention}님은 {index + 1}등\n🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏")
