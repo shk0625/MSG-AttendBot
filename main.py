@@ -202,7 +202,7 @@ async def ranking(ctx, member: discord.Member = None):
     guild_members = [member.id for member in ctx.guild.members]
 
     sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5"
-    cur.execute(sql, guild_members)
+    cur.execute(sql, tuple(guild_members))
     result = cur.fetchall()
 
     embed = discord.Embed(title="🏆 순위표 🏆", color=discord.Color.blue())
@@ -215,11 +215,11 @@ async def ranking(ctx, member: discord.Member = None):
     await ctx.send(embed=embed)
 
     today = datetime.now().strftime('%Y-%m-%d')
-    sql = "SELECT * FROM attend WHERE did=%s AND date=%s"
+    sql = f"SELECT * FROM attend WHERE did=%s AND date=%s"
     cur.execute(sql, (str(member.id), today))
     rs = cur.fetchone()
 
-    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point"
+    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC"
     cur.execute(sql, guild_members)
     rs2 = cur.fetchall()
 
