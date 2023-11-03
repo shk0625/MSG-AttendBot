@@ -201,7 +201,7 @@ async def ranking(ctx, member: discord.Member = None):
 
     guild_members = [member.id for member in ctx.guild.members]
 
-    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5"
+    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5" # 5위까지 순위표에 등재되기 위한 sql문
     cur.execute(sql, tuple(guild_members))
     result = cur.fetchall()
 
@@ -215,11 +215,11 @@ async def ranking(ctx, member: discord.Member = None):
     await ctx.send(embed=embed)
 
     today = datetime.now().strftime('%Y-%m-%d')
-    sql = f"SELECT * FROM attend WHERE did=%s AND date=%s"
+    sql = f"SELECT * FROM attend WHERE did=%s AND date=%s" # 출석체크 여부를 위한 sql문
     cur.execute(sql, (str(member.id), today))
     rs = cur.fetchone()
 
-    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC"
+    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC" # 전체 등수를 반환하기 위한 sql문
     cur.execute(sql, guild_members)
     rs2 = cur.fetchall()
 
