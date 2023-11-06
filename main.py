@@ -211,7 +211,6 @@ async def ranking(ctx, member: discord.Member = None):
         if user:
             embed.add_field(name=f"현재 {index + 1}등 !!! ", value=f"{user.display_name}\n  POINT: **{row['point']}**점",
                             inline=False)
-
     await ctx.send(embed=embed)
 
     today = datetime.now().strftime('%Y-%m-%d')
@@ -224,13 +223,10 @@ async def ranking(ctx, member: discord.Member = None):
     rs2 = cur.fetchall()
 
     if rs is None:
-        print("랭킹 출석체크 여부", rs)
         await ctx.send(f"**{member.display_name}**님, 출석체크부터 할까요?")
     else:
         index = next((i for i, v in enumerate(rs2) if v['did'] == str(member.id)), None)
         if index is not None:
-            print(guild_members)
-            print(guild_id)
             if index < 1:
                 await ctx.send(
                     f"🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏\n# {member.mention}님은 {index + 1}등\n🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏🎉👏")
