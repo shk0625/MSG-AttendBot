@@ -182,7 +182,7 @@ async def point(ctx, member: discord.Member = None):
         cur.execute(update_sql, (new_point, str(member.id), today))
         conn.commit()
         print("daily point", new_point)
-        await ctx.channel.send(f">{member.display_name}님의 현재 데일리 포인트는 {new_point}점 입니다.")
+        await ctx.channel.send(f"> {member.display_name}님의 현재 데일리 포인트는 {new_point}점 입니다.")
     else:
         await ctx.channel.send("오늘 데일리 작성을 하지 않았습니다.")
 
@@ -247,7 +247,7 @@ async def daily(ctx, *, content: str):
     conn.commit()
 
     cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
-    all_entries = cur.fetchall()
+    all_entries = cur.fetone()
 
     embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록",
                           color=discord.Color.purple())
