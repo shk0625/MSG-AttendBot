@@ -247,7 +247,7 @@ async def daily(ctx, *, content: str):
     conn.commit()
 
     cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
-    all_entries = cur.fetone()
+    all_entries = cur.fetchall()
 
     embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록",
                           color=discord.Color.purple())
@@ -285,6 +285,7 @@ async def daily_delete(ctx):
 
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
+
     embed = discord.Embed(title="도움말",
                           description="**/출석**, **/aa**\n`/출석`을 해서 스택을 쌓습니다. `/출석 @상대` 기능으로 출석여부를 파악할 수 있습니다.\n\n "
                                       "**/알람**, **/al**\n`/알람 3`, `/al 3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n"
@@ -294,7 +295,7 @@ async def helps(ctx):
                                       "**/삭제**, **/데일리삭제**, **/dd**\n 데일리를 *전체 삭제*합니다. 경고창이 표시됩니다.\n\n"
                                       "**/포인트**, **/pp**\n 현재 포인트가 표시됩니다. `/포인트 @상대` 상대포인트가 반환됩니다.\n\n"
                           , color=0xffc0cb)
-
+    print("도움말 호출")
     await ctx.send(embed=embed)
 
 
