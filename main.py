@@ -243,18 +243,26 @@ async def daily(ctx, *, content: str):
 
     today = datetime.now().strftime('%Y-%m-%d')
 
-    cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
-    conn.commit()
+    cur.execute("SELECT * FROM daily WHERE did = %s AND day = %s", (str(ctx.author.id), today)) # 이미 데일리가 있는지 확인
+    existing_entry = cur.fetchone()
 
-    cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
-    all_entries = cur.fetchall()
+    if existing_entry:
+        await ctx.send(f"{ctx.author.display_name}님, 오늘 이미 데일리를 작성하셨습니다.")
+    else:
+        # 데일리 추가
+        cur.execute("INSERT INTO daily (did, todays, day) VALUES (%s, %s, %s)", (str(ctx.author.id), content, today))
+        conn.commit()
 
-    embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록",
-                          color=discord.Color.purple())
-    for entry in all_entries:
-        embed.add_field(name=f"작성일: {entry['day']}", value=f"내용: {entry['todays']}", inline=False)
+        # 작성된 데일리 목록 조회
+        cur.execute("SELECT * FROM daily WHERE did = %s", (str(ctx.author.id),))
+        all_entries = cur.fetchall()
 
-    await ctx.channel.send(embed=embed)
+        embed = discord.Embed(title="데일리 기록", description=f"**{ctx.author.display_name}**님의 데일리 목록",
+                              color=discord.Color.purple())
+        for entry in all_entries:
+            embed.add_field(name=f"작성일: {entry['day']}", value=f"내용: {entry['todays']}", inline=False)
+
+        await ctx.channel.send(embed=embed)
 
 
 @bot.command(aliases=['삭제', '데일리삭제', 'dd'])
