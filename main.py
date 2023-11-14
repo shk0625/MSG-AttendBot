@@ -202,17 +202,24 @@ async def ranking(ctx, member: discord.Member = None):
     guild_members = [member.id for member in ctx.guild.members]
 
     sql = f"""
-        SELECT a.did, (COALESCE(a.point, 0) + COALESCE(MAX(d.point), 0)) AS total_point
+        SELECT a.did, (COALESCE(a.point, 0) + COALESCE(MAX(d.point), 0)) AS point
         FROM attend a
         LEFT JOIN daily d ON a.did = d.did
         WHERE a.did IN ({', '.join(['%s'] * len(guild_members))})
         GROUP BY a.did
-        ORDER BY total_point DESC
+        ORDER BY point DESC
     """
     cur.execute(sql, guild_members)
     all_point_result = cur.fetchall()
 
-    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5" # 5위까지 순위표에 등재되기 위한 sql문
+    sql = f"""
+            SELECT a.did, (COALESCE(a.point, 0) + COALESCE(MAX(d.point), 0)) AS point
+            FROM attend a
+            LEFT JOIN daily d ON a.did = d.did
+            WHERE a.did IN ({', '.join(['%s'] * len(guild_members))})
+            GROUP BY a.did
+            ORDER BY point DESC LIMIT 5
+        """
     cur.execute(sql, tuple(guild_members))
     result = cur.fetchall()
 
@@ -223,6 +230,7 @@ async def ranking(ctx, member: discord.Member = None):
             embed.add_field(name=f"현재 {index + 1}등 !!! ", value=f"{user.display_name}\n  POINT: **{row['point']}**점",
                             inline=False)
     await ctx.send(embed=embed)
+    print("all_point_result", all_point_result)
 
     today = datetime.now().strftime('%Y-%m-%d')
     sql = f"SELECT * FROM attend WHERE did=%s AND date=%s" # 출석체크 여부를 위한 sql문
