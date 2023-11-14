@@ -201,7 +201,14 @@ async def ranking(ctx, member: discord.Member = None):
 
     guild_members = [member.id for member in ctx.guild.members]
 
-    sql = f"SELECT a.did, (COALESCE(a.point, 0) + COALESCE(d.point, 0)) AS total_point FROM attend a LEFT JOIN daily d ON a.did = d.did WHERE a.did IN ({', '.join(['%s'] * len(guild_members))}) GROUP BY a.did ORDER BY total_point DESC"
+    sql = f"""
+        SELECT a.did, (COALESCE(a.point, 0) + COALESCE(MAX(d.point), 0)) AS total_point
+        FROM attend a
+        LEFT JOIN daily d ON a.did = d.did
+        WHERE a.did IN ({', '.join(['%s'] * len(guild_members))})
+        GROUP BY a.did
+        ORDER BY total_point DESC
+    """
     cur.execute(sql, guild_members)
     all_point_result = cur.fetchall()
 
