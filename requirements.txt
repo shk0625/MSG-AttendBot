@@ -1,0 +1,4 @@
+discord~=2.3.2
+pytz~=2023.3.post1
+python-dotenv~=1.0.0
+PyMySQL~=1.1.0
